@@ -87,9 +87,18 @@ public class ExampleSubsystem extends SubsystemBase {
     colorDist = color.getProximity();
   }
 
-  public boolean bottomSeesBall() {return bottomDist > 0.10;} // Check if bottom IR sees ball
-  public boolean topSeesBall() {return topDist > 0.25;} // Check if top IR sees ball
-  public boolean colorSeesBall() {return colorDist > 1500;} // Check if color sensor sees ball
+  public boolean bottomSeesBall() {
+    // Check if bottom IR sees ball
+    return bottomDist > 0.10;
+  }
+  public boolean topSeesBall() {
+    // Check if top IR sees ball
+    return topDist > 0.25;
+  }
+  public boolean colorSeesBall() {
+    // Check if color sensor sees ball
+    return colorDist > 1500;
+  }
 
   public void startTop() {
     // Start top motor
@@ -135,22 +144,23 @@ public class ExampleSubsystem extends SubsystemBase {
 
     // Intake
     if (bottomRunning && topRunning) { // Running both motors (1 ball case)
-      if (!topSeesBall()) { // Top IR doesn't see ball (risen above)
-        stopTop(); // Stop top motor
+      if (topSeesBall()) { // Top IR sees ball (risen to stage 3)
+        stopTop(); // Stop both motors
+        stopBottom();
       }
     } else if (bottomRunning) { // Running bottom motor only (2 balls case)
       if (!bottomSeesBall() && !colorSeesBall()) { // Bottom IR and color don't see ball (risen to stage 2)
         stopBottom(); // Stop bottom motor
       }
-    } else if (bottomSeesBall()) { // Bottom IR sees new ball (not running motors)
+    } else if (bottomSeesBall() && (balls < 3)) { // Bottom IR sees new ball (not running motors and intake not full)
       balls++; // Increment ball counter
       if (balls == 1) { // 1 ball
         startTop(); // Run both motors
         startBottom();
       } else if (balls == 2) { // 2 balls
         startBottom(); // Run bottom motor only
-      } else { // 3+ balls
-        System.out.println("Enough balls.");
+      } else { // 3 balls
+        System.out.println("Enough balls."); // Do nothing, ball rolls into place
       }
     }
   }
